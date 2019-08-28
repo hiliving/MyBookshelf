@@ -63,6 +63,8 @@ public class ReadBookControl {
     private int tipPaddingTop;
     private int tipPaddingRight;
     private int tipPaddingBottom;
+    private float textLetterSpacing;
+    private boolean canSelectText;
 
     private SharedPreferences preferences;
 
@@ -85,7 +87,7 @@ public class ReadBookControl {
         updateReaderSettings();
     }
 
-    public void updateReaderSettings() {
+    void updateReaderSettings() {
         this.hideStatusBar = preferences.getBoolean("hide_status_bar", false);
         this.hideNavigationBar = preferences.getBoolean("hide_navigation_bar", false);
         this.indent = preferences.getInt("indent", 2);
@@ -118,7 +120,8 @@ public class ReadBookControl {
         this.pageMode = preferences.getInt("pageMode", 0);
         this.screenDirection = preferences.getInt("screenDirection", 0);
         this.navBarColor = preferences.getInt("navBarColorInt", 0);
-
+        this.textLetterSpacing = preferences.getFloat("textLetterSpacing", 0);
+        this.canSelectText = preferences.getBoolean("canSelectText", false);
         initTextDrawableIndex();
     }
 
@@ -298,7 +301,7 @@ public class ReadBookControl {
     }
 
     private boolean getIsNightTheme() {
-        return preferences.getBoolean("nightTheme", false);
+        return MApplication.getInstance().isNightTheme();
     }
 
     public boolean getImmersionStatusBar() {
@@ -455,6 +458,17 @@ public class ReadBookControl {
                 .apply();
     }
 
+    public float getTextLetterSpacing() {
+        return textLetterSpacing;
+    }
+
+    public void setTextLetterSpacing(float textLetterSpacing) {
+        this.textLetterSpacing = textLetterSpacing;
+        preferences.edit()
+                .putFloat("textLetterSpacing", textLetterSpacing)
+                .apply();
+    }
+
     public float getLineMultiplier() {
         return lineMultiplier;
     }
@@ -551,6 +565,16 @@ public class ReadBookControl {
         this.hideStatusBar = hideStatusBar;
         preferences.edit()
                 .putBoolean("hide_status_bar", hideStatusBar)
+                .apply();
+    }
+
+    public Boolean getToLh() {
+        return preferences.getBoolean("toLh", false);
+    }
+
+    public void setToLh(Boolean toLh) {
+        preferences.edit()
+                .putBoolean("toLh", toLh)
                 .apply();
     }
 
@@ -655,7 +679,17 @@ public class ReadBookControl {
         preferences.edit()
                 .putInt("tipPaddingLeft", tipPaddingLeft)
                 .apply();
-        ;
+    }
+
+    public boolean isCanSelectText() {
+        return canSelectText;
+    }
+
+    public void setCanSelectText(boolean canSelectText) {
+        this.canSelectText = canSelectText;
+        preferences.edit()
+                .putBoolean("canSelectText", canSelectText)
+                .apply();
     }
 
     public int getTipPaddingTop() {
@@ -735,12 +769,12 @@ public class ReadBookControl {
     }
 
     public Boolean getLightFollowSys() {
-        return preferences.getBoolean("isfollowsys", true);
+        return preferences.getBoolean("lightFollowSys", true);
     }
 
     public void setLightFollowSys(boolean isFollowSys) {
         preferences.edit()
-                .putBoolean("isfollowsys", isFollowSys)
+                .putBoolean("lightFollowSys", isFollowSys)
                 .apply();
     }
 
@@ -752,5 +786,9 @@ public class ReadBookControl {
         } catch (Settings.SettingNotFoundException ignored) {
         }
         return value;
+    }
+
+    public boolean disableScrollClickTurn() {
+        return preferences.getBoolean("disableScrollClickTurn", false);
     }
 }

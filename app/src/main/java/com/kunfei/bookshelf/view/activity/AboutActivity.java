@@ -13,25 +13,27 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.kunfei.basemvplib.impl.IPresenter;
 import com.kunfei.bookshelf.MApplication;
 import com.kunfei.bookshelf.R;
 import com.kunfei.bookshelf.base.MBaseActivity;
+import com.kunfei.bookshelf.base.observer.MySingleObserver;
 import com.kunfei.bookshelf.help.UpdateManager;
 import com.kunfei.bookshelf.utils.RxUtils;
 import com.kunfei.bookshelf.utils.theme.ThemeStore;
 import com.kunfei.bookshelf.widget.modialog.MoDialogHUD;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.bingoogolapple.qrcode.zxing.QRCodeEncoder;
 import io.reactivex.Single;
-import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.disposables.Disposable;
 
 /**
  * Created by GKF on 2017/12/15.
@@ -95,10 +97,11 @@ public class AboutActivity extends MBaseActivity {
     CardView vwShare;
 
     private MoDialogHUD moDialogHUD;
-    private String allQQ[] = new String[]{"(公众号)开源阅读软件", "(QQ群)701903217", "(QQ群)805192012", "(QQ群)773736122", "(QQ群)981838750"};
+    private String[] allQQ = new String[]{"(公众号)开源阅读软件", "(QQ群)701903217", "(QQ群)805192012", "(QQ群)773736122", "(QQ群)981838750"};
 
     public static void startThis(Context context) {
         Intent intent = new Intent(context, AboutActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
@@ -156,25 +159,16 @@ public class AboutActivity extends MBaseActivity {
         vwShare.setOnClickListener(view -> {
             String url = "https://www.coolapk.com/apk/com.gedoor.monkeybook";
             Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
+                QRCodeEncoder.HINTS.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
                 Bitmap bitmap = QRCodeEncoder.syncEncodeQRCode(url, 600);
                 emitter.onSuccess(bitmap);
             }).compose(RxUtils::toSimpleSingle)
-                    .subscribe(new SingleObserver<Bitmap>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
-
-                        }
-
+                    .subscribe(new MySingleObserver<Bitmap>() {
                         @Override
                         public void onSuccess(Bitmap bitmap) {
                             if (bitmap != null) {
                                 moDialogHUD.showImageText(bitmap, url);
                             }
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-
                         }
                     });
         });
